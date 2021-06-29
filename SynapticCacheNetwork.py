@@ -101,6 +101,7 @@ class SynapticCacheNetwork():
         self.weights_eLTP = [np.zeros(w.shape) for w in self.weights]
         self.weights_lLTP = [np.zeros(w.shape) for w in self.weights]
         self.biases = [np.zeros(b) for b in layers[1:]]
+        self.weight_mask = [np.random.binomial(1, 0.9, (w.shape)) for w in self.weights]
         self.activation_function = activation_function
         self.learning_rate = learning_rate
         self.eLTP_cost = eLTP_cost
@@ -136,8 +137,8 @@ class SynapticCacheNetwork():
         outputs = [output]
         activations = []
         layer = 1 # avoid from count from 0 error (i think if we start from 0 then it assumes synapses into the input)
-        for b, w in zip(self.biases, self.weights):
-            activation = np.matmul(w.T, output) + b
+        for b, w, m in zip(self.biases, self.weights, self.weight_mask):
+            activation = np.matmul(np.multiply(w, m).T, output) + b
             #softmax
             if layer == self.n_layers-1: # again no synapses at the output, final layer of synapses between last hidden and final layer 
                 output = self.softmax(activation)
@@ -500,7 +501,7 @@ class SynapticCacheNetwork():
                 continue
             else:
                 moving_average_accuracy = np.append(moving_average_accuracy, self.move_mean(accuracies, moving_average_window)[-1])
-            if moving_average_accuracy[-1] - 0.25 <= moving_average_accuracy[int(-np.ceil(moving_average_window/2))]:
+            if moving_average_accuracy[-1] - 0.005 <= moving_average_accuracy[int(-np.ceil(moving_average_window/2))]: #intial threshold was 0.25
                 best_found = True
             epochs = epochs + 1
         return epochs, accuracies, energies
