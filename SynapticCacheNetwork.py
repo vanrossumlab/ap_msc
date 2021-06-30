@@ -92,7 +92,7 @@ TODO:
 """
 
 class SynapticCacheNetwork():
-    def __init__(self, layers, activation_function, learning_rate, eLTP_cost=0, decay_rate=0, consolidation_scheme=1, consolidation_threshold=1):
+    def __init__(self, layers, activation_function, learning_rate, connection_chance=1, eLTP_cost=0, decay_rate=0, consolidation_scheme=1, consolidation_threshold=1):
         self.n_layers = len(layers)
         self.layers = layers
         self.n_labels = layers[-1]
@@ -101,7 +101,7 @@ class SynapticCacheNetwork():
         self.weights_eLTP = [np.zeros(w.shape) for w in self.weights]
         self.weights_lLTP = [np.zeros(w.shape) for w in self.weights]
         self.biases = [np.zeros(b) for b in layers[1:]]
-        self.weight_mask = [np.random.binomial(1, 0.9, (w.shape)) for w in self.weights]
+        self.weight_mask = [np.random.binomial(1, connection_chance, (w.shape)) for w in self.weights]
         self.activation_function = activation_function
         self.learning_rate = learning_rate
         self.eLTP_cost = eLTP_cost

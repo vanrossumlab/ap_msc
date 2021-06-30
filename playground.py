@@ -28,8 +28,8 @@ x_train, y_train, x_test, y_test, n_samples, n_labels, img_size = load_mnist(Tru
 #%% Network profile
 
 np.random.seed(1)
-connection_chance = 0.9
-network = SynapticCacheNetwork([img_size, 50, n_labels], Activation("sigmoid"), 0.05, connection_chance, 0.001, 0, 1, 0.0007849108367626886)
+connection_chance = 1
+network = SynapticCacheNetwork([img_size, 188, 188, n_labels], Activation("sigmoid"), 0.01, connection_chance, 0.001, 0, 1, 0.0007849108367626886)
 
 #%% Training
 n_epochs = 10
