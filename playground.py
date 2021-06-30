@@ -1,6 +1,8 @@
 """
     Used to test certain configurations.
 """
+# profile code  "python3 -m cProfile  -s tottime file.py"
+# possibly use parity problem for learning "Hertz  Krogh & Palmer book: parity problem."
 
 #%% Imports
 import sys
@@ -28,7 +30,7 @@ x_train, y_train, x_test, y_test, n_samples, n_labels, img_size = load_mnist(Tru
 #%% Network profile
 
 np.random.seed(1)
-connection_chance = 1
+connection_chance = 0.2 
 network = SynapticCacheNetwork([img_size, 188, 188, n_labels], Activation("sigmoid"), 0.01, connection_chance, 0.001, 0, 1, 0.0007849108367626886)
 
 #%% Training
