@@ -187,7 +187,7 @@ class SynapticCacheNetwork():
         dWeights[-1] = np.outer(error, outputs[-2].T) # seems to prefer outer for (n,) vectors, matmul apparently attempts to append (n, 1) which might be failing
         dBiases[-1] = error
         for layer in range(2, self.n_layers):
-            error = self.activation_function.prime(activations[-layer])*np.matmul(self.weights[-layer+1], error)
+            error = self.activation_function.prime(activations[-layer])*np.matmul(np.multiply(self.weights[-layer+1], self.weight_mask[-layer+1]), error)
             dWeights[-layer] = np.outer(error, outputs[-layer-1].T)
             dBiases[-layer] = error
         return dWeights, dBiases, outputs
