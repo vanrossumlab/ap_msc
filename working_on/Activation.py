@@ -2,6 +2,7 @@ import numpy as np
 
 class Fn(): 
     def __init__(self, activation_function, ratio=0.0):
+        self.fn_name = activation_function
         self.activation_function = self.name_to_number(activation_function.lower()) #string for desired 
         self.ratio = ratio
     def __call__(self, activation):

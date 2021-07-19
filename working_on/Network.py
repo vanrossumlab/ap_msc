@@ -1,11 +1,12 @@
 import numpy as np
 
 class Neural():
-    def __init__(self, layers, activation_function, learning_rate, bias=True, p_connect=1):
+    def __init__(self, layers, activation_function, learning_rate, p_connect=1, bias=True):
         self.layers = layers
         self.n_layers = len(layers)
         self.n_labels = layers[-1]
         self.activation_function = activation_function
+        self.lr = learning_rate
         self.weight_mask = self.initialise_weight_mask(p_connect)#[np.random.binomial(1, p_connect, (i, j)) for i, j in zip(self.layers[:-1], self.layers[1:])]
         self.weights = self.initialise_weights(bias)
         self.initial_weights = self.weights
@@ -14,7 +15,7 @@ class Neural():
         self.axon = [np.ones(n) for n in layers]
         self.d_weights = [np.zeros(w.shape) for w in self.weights]
         self.d_biases = [np.zeros(b.shape) for b in self.biases]
-        self.lr = learning_rate
+        self.p_connect = p_connect
         self.bias = bias
     
     def initialise_weight_mask(self, p_connect):
@@ -98,7 +99,7 @@ class Neural():
             min_energy += np.sum(np.fabs(self.weights[layer]-self.initial_weights[layer]))+np.sum(np.fabs(self.biases[layer]))
         return min_energy
     
-    def synapse_count(self):
+    def count_synapses(self):
         n_synapse = np.zeros(len(self.weights))
         for layer in range(0, self.n_layers-1):
             n_synapse[layer] = np.count_nonzero(self.weights[layer])
@@ -137,6 +138,7 @@ class Neural():
         test_accuracies = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
         test_energies = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
         min_energies = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
+        samples_seen = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
         energy = 0
         for epoch in range(0, n_epochs):
             print("Epoch: ", epoch+1)
@@ -155,7 +157,8 @@ class Neural():
                     j = int((n_samples/test_interval)*epoch+((i/test_interval)-1)) # 1D mapping of the test intervals within epochs
                     test_errors[j], test_accuracies[j] = self.evaluate_set(x_test, y_test)
                     test_energies[j] = energy
-                    min_energies[j] = self.compute_network_min_energy()
+                    min_energies[j] = min_energies[j-1] +self.compute_network_min_energy()
+                    samples_seen[j] = (epoch*n_samples)+i
                     print("Samples ", (epoch*n_samples)+i, ": error = ", np.around(test_errors[j], 2), 
                           "| accuracy = ", np.around(test_accuracies[j], 2), 
                           "| Energy = ", np.around(test_energies[j], 2))
@@ -163,7 +166,7 @@ class Neural():
             train_accuracies[epoch] = accuracy/n_samples*100
             train_energies[epoch] = energy
             #print("Epoch ", epoch+1, ": error = ", np.around(train_errors[epoch], 2), "| accuracy = ", np.around(train_accuracies[epoch], 2), "| Energy = ", np.around(train_energies[epoch], 2))
-        return train_errors, train_accuracies, train_energies, test_errors, test_accuracies, test_energies, min_energies
+        return train_errors, train_accuracies, train_energies, test_errors, test_accuracies, test_energies, min_energies, samples_seen
             
     def evaluate_set(self, x_set, y_set):
         n_samples = x_set.shape[0]
