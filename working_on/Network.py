@@ -1,4 +1,5 @@
 import numpy as np
+import Activation
 
 class Neural():
     def __init__(self, layers, activation_function, learning_rate, p_connect=1, bias=True):
@@ -17,6 +18,7 @@ class Neural():
         self.d_biases = [np.zeros(b.shape) for b in self.biases]
         self.p_connect = p_connect
         self.bias = bias
+        self.energy = 0
     
     def initialise_weight_mask(self, p_connect):
         if type(p_connect) is float:
@@ -110,7 +112,6 @@ class Neural():
         errors = np.zeros(n_epochs)
         accuracies = np.zeros(n_epochs)
         energies = np.zeros(n_epochs)
-        energy = 0
         for epoch in range(0, n_epochs):
             error = 0
             accuracy = 0
@@ -122,10 +123,10 @@ class Neural():
                 self.update_weights()
                 error += self.cross_entropy_loss(y_train[sample], self.axon[-1])
                 accuracy += self.inference_score(y_train[sample], self.axon[-1])
-                energy += self.compute_network_energy()
+                self.energy += self.compute_network_energy()
             errors[epoch] = error/n_samples
             accuracies[epoch] = (accuracy/n_samples)*100
-            energies[epoch] = energy
+            energies[epoch] = self.energy
             print("Epoch ", epoch+1, ": error = ", np.around(errors[epoch], 2), "| accuracy = ", np.around(accuracies[epoch], 2), "| Energy = ", np.around(energies[epoch], 2))
         return errors, accuracies, energies
 
@@ -139,7 +140,6 @@ class Neural():
         test_energies = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
         min_energies = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
         samples_seen = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
-        energy = 0
         for epoch in range(0, n_epochs):
             print("Epoch: ", epoch+1)
             error = 0
@@ -152,11 +152,11 @@ class Neural():
                 self.update_weights()
                 error += self.cross_entropy_loss(y_train[sample], self.axon[-1])
                 accuracy += self.inference_score(y_train[sample], self.axon[-1])
-                energy += self.compute_network_energy()
+                self.energy += self.compute_network_energy()
                 if (epoch*n_samples)+i > 0 and not np.mod(i, test_interval):
                     j = int((n_samples/test_interval)*epoch+((i/test_interval)-1)) # 1D mapping of the test intervals within epochs
                     test_errors[j], test_accuracies[j] = self.evaluate_set(x_test, y_test)
-                    test_energies[j] = energy
+                    test_energies[j] = self.energy
                     min_energies[j] = min_energies[j-1] +self.compute_network_min_energy()
                     samples_seen[j] = (epoch*n_samples)+i
                     print("Samples ", (epoch*n_samples)+i, ": error = ", np.around(test_errors[j], 2), 
@@ -164,7 +164,7 @@ class Neural():
                           "| Energy = ", np.around(test_energies[j], 2))
             train_errors[epoch] = error/n_samples
             train_accuracies[epoch] = accuracy/n_samples*100
-            train_energies[epoch] = energy
+            train_energies[epoch] = self.energy
             #print("Epoch ", epoch+1, ": error = ", np.around(train_errors[epoch], 2), "| accuracy = ", np.around(train_accuracies[epoch], 2), "| Energy = ", np.around(train_energies[epoch], 2))
         return train_errors, train_accuracies, train_energies, test_errors, test_accuracies, test_energies, min_energies, samples_seen
             
@@ -189,3 +189,26 @@ class Neural():
     
     def cross_entropy_loss(self, y, y_hat):
         return -np.sum(y*np.log(y_hat+1e-10)) #NOTE: prevent log(0)  
+
+def load_neural(data):
+    net = Neural(data['network']['layers'], 
+           Activation.Fn(data['network']['activation_function']), 
+           np.asarray(data['network']['learning_rate']), 
+           data['network']['p_connect'], 
+           data['network']['bias'])
+    net.energy = data['network']['energy']
+    for layer in range(0, len(data['network']['weights'])):
+        net.biases[layer] = np.asarray(data['network']['biases'][layer])
+        for neuron in range(0, len(data['network']['weights'][layer])):
+            net.weight_mask[layer][neuron] = np.asarray(data['network']['weight_mask'][layer][neuron])
+            net.weights[layer][neuron] = np.asarray(data['network']['weights'][layer][neuron])
+            net.initial_weights[layer][neuron] = np.asarray(data['network']['initial_weights'][layer][neuron])
+    
+    return net
+        
+    
+    
+    
+    
+    
+    

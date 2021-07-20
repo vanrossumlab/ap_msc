@@ -1,4 +1,3 @@
-import sys
 import Network
 import Activation
 import Datasets
@@ -17,17 +16,17 @@ error, accuracy, energy, test_error, test_accuracy, test_energy, min_energy, sam
 end = time.time()
 print(end-start)
 
-data = DataManager.prepare_experiment_data("first", 
+data = DataManager.prepare_network_data("first", 
                                     network.layers, 
-                                    network.activation_function.fn_name, 
+                                    network.initial_weights, 
+                                    network.weights, 
+                                    network.weight_mask, 
+                                    network.biases,
+                                    network.activation_function.fn_name,
                                     network.lr.tolist(), 
                                     network.p_connect, 
                                     network.bias, 
-                                    network.count_synapses(), 
-                                    test_error, 
-                                    test_accuracy, 
-                                    test_energy, 
-                                    min_energy, 
-                                    samples_seen)
+                                    network.energy
+                                    )
 
-DataManager.save_data("test2", data)
+DataManager.save_data("test", data)

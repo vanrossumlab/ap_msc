@@ -9,11 +9,11 @@ def load_data(file_name):
         data = json.load(f)
     return data
         
-def prepare_experiment_data(name, layers, activation_function, learning_rate, p_connect, bias, n_synapses, 
+def prepare_simulation_data(name, layers, activation_function, learning_rate, p_connect, bias, n_synapses, 
                             error, accuracy, energy, min_energy, samples_seen, comment=""):
     data_dict = {
         "name" : name,
-        "network parameters" : {
+        "network_parameters" : {
             "layers" : layers,
             "activation_function" : activation_function,
             "learning_rate" : learning_rate,
@@ -32,29 +32,40 @@ def prepare_experiment_data(name, layers, activation_function, learning_rate, p_
         }
     return data_dict
 
-def prepare_network_dict(name, layers, initial_weights, weights, weight_mask, 
-                         biases, activation_function, learning_rate, p_connect, comment=""):
+def prepare_network_data(name, layers, initial_weights, weights, weight_mask, 
+                         biases, activation_function, learning_rate, p_connect, 
+                         bias, energy, comment=""):   
         data_dict = {
             "name" : name,
             "network" : {
                 "layers" : layers,
-                "initial_weights" : initial_weights,
-                "weights" : weights,
-                "weight_mask" : weight_mask,
-                "biases" : biases,
+                "initial_weights" : [w.tolist() for w in initial_weights], # pythonic has its perks
+                "weights" : [w.tolist() for w in weights],
+                "weight_mask" : [w.tolist() for w in weight_mask],
+                "biases" : [b.tolist() for b in biases],
                 "activation_function" : activation_function,
                 "learning_rate" : learning_rate,
-                "p_connect" : p_connect
+                "p_connect" : p_connect,
+                "bias" : bias,
+                "energy" : energy
                 },
             "comment" : comment
             }
         return data_dict
     
-def prepare_all(name, experiment_data_dict, network_data_dict, comment=""):
+def prepare_all(name, simulation_data, network_data, comment=""):
     data_dict = {
         "name" : name,
-        "experiment_data" : experiment_data_dict,
-        "network_data" : network_data_dict,
+        "simulation" : simulation_data,
+        "network" : network_data,
+        "comment" : comment
+        }
+    return data_dict
+
+def prepare_experiment_data(name, experiment_data, network_data=[], comment=""):
+    data_dict = {
+        "name" : name,
+        "experiment" : experiment_data, 
         "comment" : comment
         }
     return data_dict
