@@ -65,7 +65,7 @@ def prepare_all(name, simulation_data, network_data, comment=""):
 def prepare_experiment_data(name, experiment_data, network_data=[], comment=""):
     data_dict = {
         "name" : name,
-        "experiment" : experiment_data, 
+        "simulation" : experiment_data, 
         "comment" : comment
         }
     return data_dict

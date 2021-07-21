@@ -4,7 +4,7 @@ import numpy as np
 import time
 
 x_train, y_train, x_test, y_test, n_samples, n_labels, img_size = Datasets.load_mnist(True)
-n_epochs = 25
+n_epochs = 20
 test_interval = 5000
 
 np.random.seed(1)
@@ -21,6 +21,7 @@ experiment_data = []
 for lr in learning_rates:
     set_data = []
     for p in p_connects:
+        print("lr = ", lr, " | p = ", p)
         start = time.time()
         np.random.seed(1)
         network = Network.Neural([img_size, 100, n_labels], Activation.Fn("relu"), lr, p, True)
@@ -38,14 +39,14 @@ for lr in learning_rates:
                                           network.p_connect, 
                                           network.bias, 
                                           network.count_synapses(), 
-                                          error, 
-                                          accuracy, 
-                                          energy, 
+                                          test_error, 
+                                          test_accuracy, 
+                                          test_energy, 
                                           min_energy, 
                                           samples_seen)
         set_data.append(sim_data)
         end = time.time()
-        print("Time Taken: ", start-end)
+        print("Time Taken: ", end-start)
     experiment_data.append(set_data)
 data = dm.prepare_experiment_data("variable lr and connection probability", 
                                   experiment_data,

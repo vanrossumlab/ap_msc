@@ -157,7 +157,7 @@ class Neural():
                     j = int((n_samples/test_interval)*epoch+((i/test_interval)-1)) # 1D mapping of the test intervals within epochs
                     test_errors[j], test_accuracies[j] = self.evaluate_set(x_test, y_test)
                     test_energies[j] = self.energy
-                    min_energies[j] = min_energies[j-1] +self.compute_network_min_energy()
+                    min_energies[j] = min_energies[j-1] + self.compute_network_min_energy()
                     samples_seen[j] = (epoch*n_samples)+i
                     print("Samples ", (epoch*n_samples)+i, ": error = ", np.around(test_errors[j], 2), 
                           "| accuracy = ", np.around(test_accuracies[j], 2), 
