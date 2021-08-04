@@ -1,0 +1,52 @@
+\relax 
+\newlabel{FirstPage}{{}{1}{}{}{}}
+\@writefile{toc}{\contentsline {title}{Summary of Accuracy-Gated vs. Non-Gated Findings}{1}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {}Energy vs. Accuracy/Error}{1}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {1}{\ignorespaces In training, the gated version provides reasonable energy saving over the non-gated version. The non-gated version, makes a sudden jump in accuracy from 99\% to 96\% and then climbs back up to 99\% accuracy.}}{1}{}}
+\newlabel{fig:train_acc_vs_energy}{{1}{1}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {2}{\ignorespaces As the training error gets smaller, energy rises exponentially. I'm not sure if this would be the case for the gated version, since it never reaches a small enough error. Here, the accuracy jump from 99\% to 96\% in the non-gated version is visible through its training error. Later plots demonstrate this jump more clearly.}}{1}{}}
+\newlabel{fig:train_err_vs_energy}{{2}{1}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {3}{\ignorespaces At high accuracies, energy increases exponentially. The gated version begins to rise in energy at around 97\% but the non-gated version rises at around 98\%. Even still, the gated version sees energy-saving benefits.}}{1}{}}
+\newlabel{fig:test_acc_vs_energy}{{3}{1}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {4}{\ignorespaces A similar, if not neater graph to its training counterpart (Figure 2{}{}{}\hbox {}). At small errors the energy increases exponentially and slightly more dramatically compared to the training version. Again, it's difficult to say whether this is applicable to the gated version since it never reaches a low enough accuracy.}}{1}{}}
+\newlabel{fig:test_err_vs_energy}{{4}{1}{}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {}Minimum Energy vs. Accuracy/Error}{2}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {5}{\ignorespaces At minimum energy, the non-gated version consumes less energy. This probably suggests that while it \textit  {could} find higher accuracies at lower energies, it doesn't and is therefore more inefficient, atleast in the training case. After this however, it traces the minimum energy of the gated version. I'm not sure if that means that they're taking the same path since the errors are so different...}}{2}{}}
+\newlabel{fig:train_acc_vs_min_energy}{{5}{2}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {6}{\ignorespaces Unlike the total energy, seen in Figure 2{}{}{}\hbox {}, the minimum energy of the gated version increases exponentially at 0.5 error. While the non-gated version increases at 0.05. My guess is that high accuracies, require high energies but low errors require even higher energies. We infer the accuracy landscape from the error landscape but the error landscape is much more noisy at low errors.}}{2}{}}
+\newlabel{fig:train_err_vs_min_energy}{{6}{2}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {7}{\ignorespaces Under the testing accuracy, both the gated and non-gated appear to walk a similar path until around 96\% accuracy. Here, the gated version is able to reach higher accuracies before exponentially increasing in energy. In comparison with the training version (Figure5{}{}{}\hbox {}), it's clear that the non-gated version quickly overfits to the training data before finding a more globally applicable minima.}}{2}{}}
+\newlabel{fig:test_acc_vs_min_energy}{{7}{2}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {8}{\ignorespaces Again, like training error, the test error energy also increases exponentially for both the gated and non-gated version.}}{2}{}}
+\newlabel{fig:test_err_vs_min_energy}{{8}{2}{}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {}Training Errors \& Accuracies vs. Testing Errors \& Accuracies}{3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {9}{\ignorespaces The gated version follows a more linear path between testing and training accuracies but begins to overfit the training set at 97\% accuracy. The non-gated version is overfit from the start before finding a better gradient to traverse where it achieves a better testing accuracy than the gated version.}}{3}{}}
+\newlabel{fig:train_test_acc}{{9}{3}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {10}{\ignorespaces The gated version does not overfit its training error and is surprisingly linear. The non-gated version overfits the training set error at around 0.1 error. }}{3}{}}
+\newlabel{fig:train_test_err}{{10}{3}{}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {}An Intermission: My Thoughts}{3}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {11}{\ignorespaces The error landscape of a given sample. The blue dot represents the non-gated version's position on the error landscape and the green dot represents the gated version's position. The dotted red line represents points where the sample is correctly identified. (I feel like it's at the wrong angle but hopefully the point is conveyed). Energy has been expended bringing the blue ball down the hill, only for this minima to be destroyed on the next sample.}}{3}{}}
+\newlabel{fig:explanation}{{11}{3}{}{}{}}
+\@writefile{toc}{\contentsline {section}{\numberline {}Samples vs. Accuracy/Error \& Training/Testing}{4}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {12}{\ignorespaces The gated version begins to overfit the training set accuracy at around 96\% accuracy and is able to achieve this accuracy after 750,000 training samples or 12.5 epochs.}}{4}{}}
+\newlabel{fig:gated_acc}{{12}{4}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {13}{\ignorespaces The gated version does not overfit to the training error landscape, both remain equal for all samples seen and trained against.}}{4}{}}
+\newlabel{fig:gated_err}{{13}{4}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {14}{\ignorespaces The non-gated version overfits rapidly, corrects and begins to overfit again. It achieves 96\% accuracy at around 250,000 samples or 4.1 epochs.}}{4}{}}
+\newlabel{fig:non_gated_acc}{{14}{4}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {15}{\ignorespaces The non-gated version also overfits the training set's error landscape, unlike the gated version (Figure 13{}{}{}\hbox {}).}}{4}{}}
+\newlabel{fig:non_gated_err}{{15}{4}{}{}{}}
+\bibdata{reportNotes}
+\bibstyle{apsrev4-1}
+\citation{REVTEX41Control}
+\citation{apsrev41Control}
+\@writefile{lof}{\contentsline {figure}{\numberline {16}{\ignorespaces The non-gated version is able to reach a higher accuracy with less samples seen, 96\% accuracy is achieved with 250,000 samples while the gated version takes 750,000 samples.}}{5}{}}
+\newlabel{fig:train_acc}{{16}{5}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {17}{\ignorespaces Again, the non-gated version is capable of reaching a low error with little samples. The gated version prevents the error from getting too low and doesn't saturate as quickly.}}{5}{}}
+\newlabel{fig:train_err}{{17}{5}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {18}{\ignorespaces The non-gated version is able to achieve a higher testing accuracy than the gated version and has a faster rise time. Even though, from Figure 16{}{}{}\hbox {}, the gated version increases in training accuracy, this does not translate to testing accuracy suggesting it has overfit to the training accuracy plane.}}{5}{}}
+\newlabel{fig:test_acc}{{18}{5}{}{}{}}
+\@writefile{lof}{\contentsline {figure}{\numberline {19}{\ignorespaces A similar plot to Figure 17{}{}{}\hbox {}, the training error version and a similar description would be given here too.}}{5}{}}
+\newlabel{fig:test_err}{{19}{5}{}{}{}}
+\newlabel{LastPage}{{}{5}{}{}{}}
+\gdef \@abspage@last{5}
