@@ -1,5 +1,6 @@
 import numpy as np
 import Activation
+from scipy import ndimage
 
 class Neural():
     def __init__(self, layers, activation_function, learning_rate, p_connect=1, bias=True):
@@ -46,7 +47,7 @@ class Neural():
         self.axon[0] = x
         for layer in range(0, self.n_layers-1):
             self.dendrite[layer] = np.matmul(np.multiply(self.weights[layer], self.weight_mask[layer]).T, self.axon[layer]) + self.biases[layer]
-            if layer == self.n_layers-1:
+            if layer == self.n_layers-2:
                 self.axon[layer+1] = self.softmax(self.dendrite[layer])
             else:
                 self.axon[layer+1] = self.activation_function(self.dendrite[layer])
@@ -64,7 +65,7 @@ class Neural():
             self.d_weights[layer] = np.multiply(self.d_weights[layer], self.weight_mask[layer].T)
             if self.bias:
                 self.d_biases[layer] = error
-        return self.d_weights
+        return self.d_weights, self.d_biases
 
     def update_weights(self):
         for layer in range(0, self.n_layers-1):
@@ -118,7 +119,7 @@ class Neural():
             shuffled_idxs = np.random.permutation(n_samples)
             for i in range(0, n_samples):
                 sample = shuffled_idxs[i]
-                self.feedforward(x_train[sample]) # more explicit 
+                self.feedforward(x_train[sample]) # more explicit
                 self.backpropagate(x_train[sample], y_train[sample])
                 self.update_weights()
                 error += self.cross_entropy_loss(y_train[sample], self.axon[-1])
@@ -132,9 +133,9 @@ class Neural():
 
     def train_and_test(self, n_epochs, x_train, y_train, x_test, y_test, test_interval):
         n_samples = x_train.shape[0]
-        train_errors = np.zeros(n_epochs)
-        train_accuracies = np.zeros(n_epochs)
-        train_energies = np.zeros(n_epochs)
+        train_errors = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
+        train_accuracies = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
+        train_energies = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
         test_errors = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1) # 
         test_accuracies = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
         test_energies = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
@@ -159,12 +160,14 @@ class Neural():
                     test_energies[j] = self.energy
                     min_energies[j] = min_energies[j-1] + self.compute_network_min_energy()
                     samples_seen[j] = (epoch*n_samples)+i
-                    print("Samples ", (epoch*n_samples)+i, ": error = ", np.around(test_errors[j], 2), 
+                    train_errors[j], train_accuracies[j] = self.evaluate_set(x_train, y_train)
+                    train_energies[j] = self.energy
+                    print("Train - ", "Samples ", (epoch*n_samples)+i, ": error = ", np.around(train_errors[j], 2), 
+                           "| accuracy = ", np.around(train_accuracies[j], 2), 
+                           "| Energy = ", np.around(train_energies[j], 2))
+                    print("Test -  ", "Samples ", (epoch*n_samples)+i, ": error = ", np.around(test_errors[j], 2), 
                           "| accuracy = ", np.around(test_accuracies[j], 2), 
                           "| Energy = ", np.around(test_energies[j], 2))
-            train_errors[epoch] = error/n_samples
-            train_accuracies[epoch] = accuracy/n_samples*100
-            train_energies[epoch] = self.energy
             #print("Epoch ", epoch+1, ": error = ", np.around(train_errors[epoch], 2), "| accuracy = ", np.around(train_accuracies[epoch], 2), "| Energy = ", np.around(train_energies[epoch], 2))
         return train_errors, train_accuracies, train_energies, test_errors, test_accuracies, test_energies, min_energies, samples_seen
             
@@ -184,11 +187,17 @@ class Neural():
             return 1
         return 0
             
-    def softmax(output):
+    def softmax(self, output):
         return np.exp(output - np.max(output))/np.sum(np.exp(output - np.max(output)))
     
     def cross_entropy_loss(self, y, y_hat):
-        return -np.sum(y*np.log(y_hat+1e-10)) #NOTE: prevent log(0)  
+        return -np.sum(y*np.log(y_hat+1e-10)) #NOTE: prevent log(0)
+    
+    def transform_image(self, image):
+        image = np.reshape(image, (28, 28))
+        image = ndimage.rotate(image, np.random.randint(10), mode='nearest', reshape=False)
+        image = ndimage.shift(image, (np.random.randint(5), np.random.randint(5)), mode='nearest')
+        return np.reshape(image, (784))
 
 def load_neural(data):
     net = Neural(data['network']['layers'], 
