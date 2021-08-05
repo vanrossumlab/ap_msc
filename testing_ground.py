@@ -19,8 +19,8 @@ np.random.seed(2)
 p_connect = [1.0, 1.0]
 lr = np.array([0.001, 0.001])
 start = time.time()
-network = Gated.Neural([img_size, 250, n_labels], Activation.Fn("relu"), lr, p_connect, True)
-error, accuracy, energy, test_error, test_accuracy, test_energy, min_energy, samples_seen = network.train_and_test(50, x_train, y_train, x_test, y_test, 10000)
+network = Network.Neural([img_size, 150, n_labels], Activation.Fn("relu"), lr, p_connect, True)
+error, accuracy, energy, test_error, test_accuracy, test_energy, min_energy, samples_seen = network.train_and_test(1, x_train, y_train, x_test, y_test, 5000)
 end = time.time()
 print("Time Taken: ", end-start)
 data = DataManager.prepare_simulation_data("gated_250_neurons_lr_50_epochs", 
@@ -38,8 +38,9 @@ data = DataManager.prepare_simulation_data("gated_250_neurons_lr_50_epochs",
 DataManager.save_data("gated_250_neurons_lr_50_epochs", data)
 
 start = time.time()
-network = Network.Neural([img_size, 250, n_labels], Activation.Fn("relu"), lr, p_connect, True)
-d_error, d_accuracy, d_energy, d_test_error, d_test_accuracy, d_test_energy, min_energy, samples_seen = network.train_and_test(50, x_train, y_train, x_test, y_test, 10000)
+p_connect = [0.25, 0.25]
+network = Network.Neural([img_size, 150, n_labels], Activation.Fn("relu"), lr, p_connect, True)
+d_error, d_accuracy, d_energy, d_test_error, d_test_accuracy, d_test_energy, min_energy, samples_seen = network.train_and_test(10, x_train, y_train, x_test, y_test, 5000)
 end = time.time()
 print("Time Taken: ", end-start)
 data = DataManager.prepare_simulation_data("not_gated_increasing_threshold_50_epochs", 
@@ -60,10 +61,11 @@ plt.figure()
 plt.title("Accuracy vs Energy", fontsize=24)
 plt.xlabel("Accuracy", fontsize=18)
 plt.ylabel("Energy", fontsize=18)
+plt.xlim(90, 95)
 plt.plot(test_accuracy, test_energy)
 plt.plot(d_test_accuracy, d_test_energy)
 plt.yscale("log")
-plt.legend(["Gated", "Non-Gated"])
+plt.legend(["1.0", "0.25"])
 plt.show()
 
 plt.figure()

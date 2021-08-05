@@ -1,6 +1,7 @@
 import numpy as np
 import Activation
 from scipy import ndimage
+import time
 
 class Neural():
     def __init__(self, layers, activation_function, learning_rate, p_connect=1, bias=True):
@@ -52,11 +53,12 @@ class Neural():
             else:
                 self.axon[layer+1] = self.activation_function(self.dendrite[layer])
         return self.dendrite, self.axon
-        
+    
     def backpropagate(self, x, y):
         error = self.axon[-1] - y # cross-entropy
         self.d_weights[-1] = np.outer(error, self.axon[-2].T)
         self.d_weights[-1] = np.multiply(self.d_weights[-1], self.weight_mask[-1].T)
+        # TODO: Add normalisation here
         if self.bias:
             self.d_biases[-1] = error
         for layer in reversed(range(0, self.n_layers-2)):
@@ -71,11 +73,13 @@ class Neural():
         for layer in range(0, self.n_layers-1):
             self.weights[layer] -= self.lr[layer]*self.d_weights[layer].T
             self.biases[layer] -= self.lr[layer]*self.d_biases[layer].T
-            
+    
     def compute_network_energy(self):
         energy = 0
         for layer in range(0, self.n_layers-1):
             energy += np.sum(np.fabs(self.lr[layer]*self.d_weights[layer]))+np.sum(np.fabs(self.lr[layer]*self.d_biases[layer]))
+        self.d_weights = [np.zeros(w.shape) for w in self.weights]
+        self.d_biases = [np.zeros(b.shape) for b in self.biases]
         return energy
     
     def compute_layer_energy(self):
@@ -131,7 +135,7 @@ class Neural():
             print("Epoch ", epoch+1, ": error = ", np.around(errors[epoch], 2), "| accuracy = ", np.around(accuracies[epoch], 2), "| Energy = ", np.around(energies[epoch], 2))
         return errors, accuracies, energies
 
-    def train_and_test(self, n_epochs, x_train, y_train, x_test, y_test, test_interval):
+    def train_and_test(self, n_epochs, x_train, y_train, x_test, y_test, test_interval, train_eval=True):
         n_samples = x_train.shape[0]
         train_errors = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
         train_accuracies = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
@@ -142,6 +146,7 @@ class Neural():
         min_energies = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
         samples_seen = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
         for epoch in range(0, n_epochs):
+            start = time.time()
             print("Epoch: ", epoch+1)
             error = 0
             accuracy = 0
@@ -160,14 +165,16 @@ class Neural():
                     test_energies[j] = self.energy
                     min_energies[j] = min_energies[j-1] + self.compute_network_min_energy()
                     samples_seen[j] = (epoch*n_samples)+i
-                    train_errors[j], train_accuracies[j] = self.evaluate_set(x_train, y_train)
-                    train_energies[j] = self.energy
-                    print("Train - ", "Samples ", (epoch*n_samples)+i, ": error = ", np.around(train_errors[j], 2), 
-                           "| accuracy = ", np.around(train_accuracies[j], 2), 
-                           "| Energy = ", np.around(train_energies[j], 2))
+                    if train_eval:               
+                        train_errors[j], train_accuracies[j] = self.evaluate_set(x_train, y_train)
+                        train_energies[j] = self.energy
+                        print("Train - ", "Samples ", (epoch*n_samples)+i, ": error = ", np.around(train_errors[j], 2), 
+                               "| accuracy = ", np.around(train_accuracies[j], 2), 
+                               "| Energy = ", np.around(train_energies[j], 2))
                     print("Test -  ", "Samples ", (epoch*n_samples)+i, ": error = ", np.around(test_errors[j], 2), 
                           "| accuracy = ", np.around(test_accuracies[j], 2), 
                           "| Energy = ", np.around(test_energies[j], 2))
+            print("Time Taken: ", np.around(time.time()-start, 2))
             #print("Epoch ", epoch+1, ": error = ", np.around(train_errors[epoch], 2), "| accuracy = ", np.around(train_accuracies[epoch], 2), "| Energy = ", np.around(train_energies[epoch], 2))
         return train_errors, train_accuracies, train_energies, test_errors, test_accuracies, test_energies, min_energies, samples_seen
             

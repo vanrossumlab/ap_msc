@@ -8,19 +8,19 @@ file_name = 'mp_test'
 
 x_train, y_train, x_test, y_test, n_samples, n_labels, img_size = Datasets.load_mnist(True)
 
-layers = [img_size, 100, n_labels]
+layers = [img_size, 20, n_labels]
 activation_function = Activation.Fn('relu')
 learning_rate = np.array([0.001, 0.001])
-p_connect = [1.0, 1.0]
+p_connects = [[1.0, 1.0], [0.9, 0.9], [0.8, 0.8], [0.7, 0.7], [0.6, 0.6], [0.5, 0.5], [0.4, 0.4], [0.3, 0.3], [0.2, 0.2], [0.1, 0.1]]
 bias = True
 
 n_epochs = 1
-test_interval = 10000
+test_interval = 5000
 
-parameters = [[img_size, 100, 10],
+parameters = [layers,
               activation_function, 
               learning_rate, 
-              [[1.0, 1.0], [0.9, 0.9], [0.8, 0.8], [0.7, 0.7], [0.6, 0.6], [0.5, 0.5], [0.4, 0.4], [0.3, 0.3], [0.2, 0.2], [0.1, 0.1]],
+              p_connects,
               bias,
               n_epochs, 
               x_train, 
@@ -64,14 +64,18 @@ def f(queue, parameter, name):
 # currently sets cpus to number of first independent variables so 3 simulations would instance 3 cpus
 # so careful with your iv's
 def main():
-    Experiment.run(f, parameters, independent_parameters_idxs, "test", file_name)
+    Experiment.main(f, parameters, independent_parameters_idxs, "test", file_name, 5)
     d = dm.load_data('mp_test')
+    labels = []
     for v in range(0, len(d[0])):
         plt.plot(d[0][v]['results']['accuracy'], d[0][v]['results']['energy'])
-    plt.legend()
+        labels.append(str(d[0][v]['network_parameters']['p_connect']))
+    plt.legend(labels)
+    plt.yscale('log')
     plt.ylabel('Energy /a.u.')
     plt.xlabel('Accuracy /%')
     plt.show()
 
 if __name__ == '__main__':
     main()
+    
