@@ -25,7 +25,7 @@ def main(f, parameters, independent_parameters_idx, name, file_name, max_cpus=mp
                     p.daemon = True
                     p.start()
                 results = [queue.get() for p in processes]
-                data + results
+                data = data + results
                 for p in processes:
                     p.join()
             dm.save_data(file_name, data)           
