@@ -3,7 +3,7 @@ import Activation
 from scipy import ndimage
 
 class Neural():
-    def __init__(self, layers, activation_function, learning_rate, p_connect=1, bias=True):
+    def __init__(self, layers, activation_function, learning_rate, p_connect=1, threshold= 0.0, bias=True):
         self.layers = layers
         self.n_layers = len(layers)
         self.n_labels = layers[-1]
@@ -18,6 +18,7 @@ class Neural():
         self.d_weights = [np.zeros(w.shape).T for w in self.weights]
         self.d_biases = [np.zeros(b.shape) for b in self.biases]
         self.p_connect = p_connect
+        self.threshold = threshold
         self.bias = bias
         self.energy = 0
     
@@ -131,7 +132,7 @@ class Neural():
             print("Epoch ", epoch+1, ": error = ", np.around(errors[epoch], 2), "| accuracy = ", np.around(accuracies[epoch], 2), "| Energy = ", np.around(energies[epoch], 2))
         return errors, accuracies, energies
 
-    def train_and_test(self, n_epochs, x_train, y_train, x_test, y_test, test_interval, threshold=0.0):
+    def train_and_test(self, n_epochs, x_train, y_train, x_test, y_test, test_interval, train_eval=True):
         n_samples = x_train.shape[0]
         train_errors = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
         train_accuracies = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
@@ -144,15 +145,13 @@ class Neural():
         accuracy = 0
         error = 0
         j = 0
-        counter = 0
-        accuracy_threshold = 96
         for epoch in range(0, n_epochs):
             print("Epoch: ", epoch+1)
             shuffled_idxs = np.random.permutation(n_samples)
             for i in range(0, n_samples):
                 sample = shuffled_idxs[i]
                 self.feedforward(x_train[sample])
-                if not self.inference_score(y_train[sample], self.axon[-1]): # or (self.inference_score(y_train[sample], self.axon[-1]) and np.max(self.axon[-1]) < threshold):
+                if not self.inference_score(y_train[sample], self.axon[-1]) or (self.inference_score(y_train[sample], self.axon[-1]) and np.max(self.axon[-1]) < self.threshold):
                     self.backpropagate(x_train[sample], y_train[sample])
                     self.update_weights()
                 else:
@@ -167,15 +166,13 @@ class Neural():
                     test_energies[j] = self.energy
                     min_energies[j] = min_energies[j-1] + self.compute_network_min_energy()
                     samples_seen[j] = (epoch*n_samples)+i
-                    train_errors[j], train_accuracies[j] = self.evaluate_set(x_train, y_train)
-                    train_energies[j] = self.energy
-                    # if train_accuracies[j-1] >= accuracy_threshold:
-                    #     accuracy_threshold += 1
-                    #     self.lr = self.lr*0.5
-                    #    print(accuracy_threshold)
-                    print("Train - ", "Samples ", (epoch*n_samples)+i, ": error = ", np.around(train_errors[j], 2), 
-                           "| accuracy = ", np.around(train_accuracies[j], 2), 
-                           "| Energy = ", np.around(train_energies[j], 2))
+                    if train_eval:
+                        train_errors[j], train_accuracies[j] = self.evaluate_set(x_train, y_train)
+                        train_energies[j] = self.energy
+                        
+                        print("Train - ", "Samples ", (epoch*n_samples)+i, ": error = ", np.around(train_errors[j], 2), 
+                               "| accuracy = ", np.around(train_accuracies[j], 2), 
+                               "| Energy = ", np.around(train_energies[j], 2))
                     print("Test -  ", "Samples ", (epoch*n_samples)+i, ": error = ", np.around(test_errors[j], 2), 
                           "| accuracy = ", np.around(test_accuracies[j], 2), 
                           "| Energy = ", np.around(test_energies[j], 2))

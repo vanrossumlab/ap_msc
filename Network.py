@@ -145,6 +145,7 @@ class Neural():
         test_energies = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
         min_energies = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
         samples_seen = np.zeros(int(n_epochs*np.floor(n_samples/test_interval))-1)
+        j = 0
         for epoch in range(0, n_epochs):
             start = time.time()
             print("Epoch: ", epoch+1)

@@ -4,14 +4,14 @@ import DataManager as dm
 import numpy as np
 import matplotlib.pyplot as plt
 
-file_name = 'mp_test'
+file_name = 'distr_test'
 
 x_train, y_train, x_test, y_test, n_samples, n_labels, img_size = Datasets.load_mnist(True)
 
-layers = [img_size, 20, n_labels]
+layers = [[img_size, 20, n_labels], [img_size, 30, n_labels]]
 activation_function = Activation.Fn('relu')
 learning_rate = np.array([0.001, 0.001])
-p_connects = [[1.0, 1.0], [0.9, 0.9], [0.8, 0.8], [0.7, 0.7], [0.6, 0.6], [0.5, 0.5], [0.4, 0.4], [0.3, 0.3], [0.2, 0.2], [0.1, 0.1]]
+p_connects = [[1.0, 1.0],  [0.75, 0.75], [0.5, 0.5], [0.25, 0.25]]
 bias = True
 
 n_epochs = 1
@@ -29,7 +29,7 @@ parameters = [layers,
               y_test, 
               test_interval]
 
-independent_parameters_idxs = [3]
+independent_parameters_idxs = [3, 0]
 
 # process to make parallel
 def f(queue, parameter, name):
@@ -43,7 +43,8 @@ def f(queue, parameter, name):
                                                                                                                        parameter[7], 
                                                                                                                        parameter[8], 
                                                                                                                        parameter[9],   
-                                                                                                                       parameter[10])
+                                                                                                                       parameter[10],
+                                                                                                                       False)
     # sets up a dictionary such that the data can be stored in an easily addressable format
     # This is stored as a JSON file, which is loaded up later (line 68)
     sim_data = dm.prepare_simulation_data(name, 
@@ -64,12 +65,13 @@ def f(queue, parameter, name):
 # currently sets cpus to number of first independent variables so 3 simulations would instance 3 cpus
 # so careful with your iv's
 def main():
-    Experiment.main(f, parameters, independent_parameters_idxs, "test", file_name, 5)
-    d = dm.load_data('mp_test')
+    Experiment.main(f, parameters, independent_parameters_idxs, "test", file_name, 2)
+    d = dm.load_data(file_name)
     labels = []
-    for v in range(0, len(d[0])):
-        plt.plot(d[0][v]['results']['accuracy'], d[0][v]['results']['energy'])
-        labels.append(str(d[0][v]['network_parameters']['p_connect']))
+    for v in range(0, len(d)):
+        for i in range(0, len(d[v])):
+            plt.plot(d[v][i]['results']['accuracy'], d[v][i]['results']['energy'])
+            labels.append(str(d[v][i]['network_parameters']['p_connect']))
     plt.legend(labels)
     plt.yscale('log')
     plt.ylabel('Energy /a.u.')
